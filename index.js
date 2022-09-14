@@ -13,8 +13,11 @@ let game = {
 	over: false,
 	active: true
 }
+let img2 = true
 let isStarted = false
 let is2Player = false
+let soundEnabled = true
+let deathSoundEnabled = true
 
 class Player {
 	constructor() {
@@ -36,6 +39,9 @@ class Player {
 				x: canvas.width / 2 - this.width / 2,
 				y: canvas.height - this.height - 25
 			}
+			this.shootSound = new Audio("sounds/shoot.wav")
+			this.shootSound.volume = 0.4
+			this.opacity = 1
 		}
 	}
 	draw() {
@@ -48,6 +54,12 @@ class Player {
 		if (this.image) {
 			this.draw()
 			this.position.x += this.velocity.x
+		}
+	}
+	makesound() {
+		if (soundEnabled) {
+			this.shootSound.currentTime = 0
+			this.shootSound.play()
 		}
 	}
 }
@@ -72,6 +84,9 @@ class Player2 {
 				x: canvas.width / 2 + this.width / 2,
 				y: canvas.height - this.height - 25
 			}
+			this.shootSound = new Audio("sounds/shoot.wav")
+			this.shootSound.volume = 0.4
+			this.opacity = 1
 		}
 	}
 	draw() {
@@ -84,6 +99,12 @@ class Player2 {
 		if (this.image) {
 			this.draw()
 			this.position.x += this.velocity.x
+		}
+	}
+	makesound() {
+		if (soundEnabled) {
+			this.shootSound.currentTime = 0
+			this.shootSound.play()
 		}
 	}
 }
@@ -180,17 +201,28 @@ class Invader {
 			x: 0,
 			y: 0
 		}
-
+		this.deathSound = new Audio("sounds/enemy-death.wav")
+		this.deathSound.volume = 0.4
 		const image = new Image()
-		image.src = './images/space_invader_1.png'
+		if (img2) {
+			image.src = './images/space_invader_2.png'
+		} else {
+			image.src = './images/space_invader_1.png'
+		}
 		image.onload = () => {
 			this.image = image
-			this.width = image.width * 0.057
-			this.height = image.height * 0.057
+			if (!img2) {
+				this.width = 45
+				this.height = 40
+			} else if (img2) {
+				this.width = image.width * 0.8
+				this.height = image.height * 0.8
+			}
 			this.position = {
 				x: position.x,
 				y: position.y
 			}
+
 		}
 	}
 
@@ -220,6 +252,12 @@ class Invader {
 			)
 		}
 	}
+	makesound() {
+		if (deathSoundEnabled) {
+			this.deathSound.currentTime = 0
+			this.deathSound.play()
+		}
+	}
 }
 
 class Grid {
@@ -237,6 +275,11 @@ class Grid {
 		if (is2Player) {
 			for (let x = 0; x < 12; x++) {
 				for (let y = 0; y < 5; y++) {
+					if (y < 2) {
+						img2 = true
+					} else {
+						img2 = false
+					}
 					this.invaders.push(new Invader({
 						position: {
 							x: x * 58,
@@ -248,6 +291,11 @@ class Grid {
 		} else {
 			for (let x = 0; x < 10; x++) {
 				for (let y = 0; y < 4; y++) {
+					if (y < 2) {
+						img2 = true
+					} else {
+						img2 = false
+					}
 					this.invaders.push(new Invader({
 						position: {
 							x: x * 58,
@@ -343,7 +391,7 @@ function CreateParticles({ object, color, fades }) {
 				y: (Math.random() - 0.5) * 2
 			},
 			radius: Math.random() * 3,
-			color: color || 'green',
+			color: color || 'red',
 			fades: fades
 		}))
 	}
@@ -361,7 +409,7 @@ function CreateParticles2({ object, color, fades }) {
 				y: (Math.random() - 0.5) * 2
 			},
 			radius: Math.random() * 3,
-			color: color || 'green',
+			color: color || 'red',
 			fades: fades
 		}))
 	}
@@ -499,6 +547,7 @@ function animation() {
 								object: invader,
 								fades: true
 							})
+							invader.makesound()
 							grid.invaders.splice(iIndex, 1)
 							projectiles.splice(pIndex, 1)
 							if (grid.invaders.length > 0) {
@@ -642,7 +691,9 @@ addEventListener('keyup', ({ key }) => {
 			keys.d.pressed = false
 			break
 		case ' ':
+			soundEnabled = true
 			if (timetillnextbullet >= 50) {
+				player.makesound()
 				projectiles.push(new Projectile({
 					position: {
 						x: player.position.x + player.width / 2,
@@ -671,6 +722,7 @@ addEventListener('keyup', ({ key }) => {
 			break
 		case 'ArrowUp':
 			if (timetillnextbullet2 >= 50) {
+				player2.makesound()
 				projectiles.push(new Projectile2({
 					position: {
 						x: player2.position.x + player2.width / 2,
