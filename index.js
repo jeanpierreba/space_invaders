@@ -629,6 +629,8 @@ function menu() {
 				player.velocity.y = 0
 				player.opacity = 1
 				projectiles.splice(0, 5)
+				keys.a.pressed = false
+				keys.d.pressed = false
 				document.getElementById("displayed").style.display = "flex";
 				animation()
 				break
@@ -642,6 +644,10 @@ function menu() {
 				counter = 0
 				player.velocity.x = 0
 				player.velocity.y = 0
+				keys.a.pressed = false
+				keys.d.pressed = false
+				player2keys.left.pressed = false
+				player2keys.right.pressed = false
 				document.getElementById("displayed").style.display = "flex";
 				animation()
 				break
@@ -652,6 +658,8 @@ function menu() {
 menu()
 
 addEventListener('keydown', ({ key }) => {
+	pause_sound = new Audio('sounds/game-pause.mp3')
+	pause_sound.volume = 0.4
 	if (game.over) return
 	switch (key) {
 		case 'a':
@@ -664,6 +672,8 @@ addEventListener('keydown', ({ key }) => {
 			if (!game.over) {
 				if (game.pause == false) {
 					game.pause = true
+					pause_sound.currentTime = 0
+					pause_sound.play()
 					break
 				}
 				if (game.pause == true) {
